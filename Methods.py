@@ -11,7 +11,7 @@ password = "Nikyl1978@"  # database connection password
 Agent_password = "Insurance@1515"  # common password for the agent login
 
 
-# login page
+# Login page
 def login_input():
     print("Home Page\n")
     info_1 = input("1. Customer Registration\n2. Customer Login\n3. Agent Login\n4. Exit\n\nOption No : ")
@@ -41,46 +41,79 @@ def back_but():
 
 # Customer registration
 def customer_registration():
+    # Generate a unique customer ID
     customer_id = ''.join(random.sample('0123456789', 7))
+
+    # Ask for customer name
     print("\nRegistration Page")
     customer_name = input("Enter Full Name   : ")
+
+    # Validate customer name using regular expression
     while not re.match(r'^[a-zA-Z ]{2,50}$', customer_name):
         print("Invalid Customer Name! Please enter a valid name [3-50 characters]")
         customer_name = input("Enter Full Name   : ")
+
+    # Ask for customer age
     customer_age = input("Enter Age         : ")
+
+    # Validate customer age using regular expression
     while not re.match(r'^(1[8-9]|[2-9][0-9]|1[0-2][0-9]|130)$', customer_age):
         print("Invalid Customer Age! Please enter a valid Customer Age [18-130]")
         customer_age = input("Enter Age         :")
+
+    # Ask for customer gender
     customer_gender = input("Enter Gender      : ")
+
+    # Validate customer gender using regular expression
     while not re.match(r'^(male|female|Others)$', customer_gender):
         print("Invalid Gender! Please enter a valid Gender(male|female|Others)")
         customer_gender = input("Enter Gender      : ")
+
+    # Ask for customer contact number
     contact_number = input("Enter Contact Number: ")
+
+    # Validate contact number using regular expression
     while not re.match(r'^\d{10}$', contact_number):
         print("Invalid Contact Number! Please enter a valid 10 digit number")
         contact_number = input("Enter Contact Number: ")
+
+    # Ask for customer email ID
     email_id = input("Enter Email Id    : ")
+
+    # Validate email ID using regular expression
     while not re.match(r'^[a-z\d]+@[a-z]{2,30}\.com$', email_id):
         print("Invalid email_id! Please enter a valid Email Id(.com)")
         email_id = input("Enter Email Id    : ")
+
+    # Ask for customer password
     password_user = input("Enter Password    : ")
+
+    # Validate password using regular expression
     while not re.match(r'^[a-zA-Z\W\d]{8,30}$', password_user):
         print("Invalid Password! Please enter a valid Password[5-30 characters][include at least one special character "
               "and number]")
         password_user = input("Enter Password    : ")
+
+    # Ask for customer address
     address = input("Enter Address     : ")
+
+    # Validate address using regular expression
     while not re.match(r'^[a-zA-Z\d\W]{5,150}$', address):
         print("Invalid Address! Please enter a valid Address[5-150 characters]")
         address = input("Enter Address     : ")
+    # Validate Nominee Name
     nominee_name = input("Enter Nominee Name: ")
     while not re.match(r'^[a-zA-Z ]{2,50}$', nominee_name):
         print("Invalid Nominee_Name! Please enter a valid Nominee_Name[2-50 characters]")
         nominee_name = input("Enter Nominee Name: ")
+
+    # Validate Nominee Relationship
     nominee_relationship = input("Enter Nominee Relationship: ")
     while not re.match(r'^[a-zA-Z ]{2,80}$', nominee_relationship):
         print("Invalid Nominee_relationship! Please enter a valid Nominee_relationship[2-80 characters]")
         nominee_relationship = input("Enter Nominee Relationship: ")
 
+    # Check if Customer exists
     if check_customer(contact_number, email_id):
         Customers(customer_id, customer_name, customer_age, customer_gender, contact_number, email_id, password_user,
                   address,
@@ -89,10 +122,12 @@ def customer_registration():
                         password_user, address, nominee_name, nominee_relationship)
     else:
         print("Customer with same Phone number or emailId is already Present\n")
+
+    # Call back button function
     back_but()
 
 
-# customer login
+# Customer Login Function
 def customer_login():
     print("\nLogin Page")
     customer_Id = input("Customer Id   : ")
@@ -100,7 +135,7 @@ def customer_login():
     login_check(customer_Id, pass_word)
 
 
-# Agent login
+# Agent Login Function
 def agent_login():
     print("\nAgent Login Page")
     input("Agent Id      : ")
@@ -113,24 +148,43 @@ def agent_login():
     back_but()
 
 
-# Getting value for Agent table from Customer and policy table
+# Function to view customer and policy information for agents
 def agent_view():
+    # Establish a connection to the database
     connection = create_db_connection("localhost", "root", password, "mysql_python")
+    # SQL query to join customer and policy information
     sql = """select c.Customer_id, c.Customer_Name, c.Contact_Number, c.Email_Id, c.Address, p.Policy_id, p.Policy_Name, p.Sum_Assured, p.Premium, p.Term from customer_info as c inner join policy_info as p on c.Customer_id = p.Customer_id"""
+    # Creating a cursor to execute the query
     cursor = connection.cursor()
 
     try:
+        # Executing the query
         cursor.execute(sql)
+        # Fetching the result
         result = cursor.fetchall()
+        # Calling the agent_table function to display the result
         agent_table(result)
     except Error as err:
+        # Handling errors
         print(f"Error: '{err}")
     finally:
+        # Closing the database connection
         connection.close()
 
 
-# Create Server Connection+
+# Function to create a connection to the server
 def create_server_connection(host_name, user_name, user_password):
+    """
+    Creates a connection to the server using the provided host name, user name, and password.
+
+    Parameters:
+    host_name (str): the host name for the server
+    user_name (str): the user name for the server
+    user_password (str): the password for the user name
+
+    Returns:
+    connection: a connection object to the server if successful, None otherwise
+    """
     connection = None
     try:
         connection = mysql.connector.connect(
@@ -144,8 +198,18 @@ def create_server_connection(host_name, user_name, user_password):
     return connection
 
 
-# Create Database
+# Function to create a database on the server
 def create_database(connection, query):
+    """
+    Creates a database on the server using the provided connection and query.
+
+    Parameters:
+    connection: a connection object to the server
+    query (str): the query for creating the database
+
+    Returns:
+    None
+    """
     cursor = connection.cursor()
     try:
         cursor.execute(query)
@@ -154,10 +218,13 @@ def create_database(connection, query):
         print(f"Error: '{err}")
 
 
-# Create Database
+# Function to create database connection
 def create_db_connection(host_name, user_name, user_password, db_name):
+    # Creating a connection variable with None value
     connection = None
+    # Try block to create a connection to database
     try:
+        # Creating a connection to database with given parameters
         connection = mysql.connector.connect(
             host=host_name,
             user=user_name,
@@ -165,35 +232,82 @@ def create_db_connection(host_name, user_name, user_password, db_name):
             database=db_name
         )
         # print("MySQL Database connection successful")
+    # Exception block to catch and print the error if any
     except Error as err:
         print(f"Error: '{err}'")
+    # Return the connection to database
     return connection
 
 
-# Execute Query
+# Function to execute the query
 def execute_query(connection, query):
+    # Creating a cursor for the connection
     cursor = connection.cursor()
+    # Try block to execute the query
     try:
+        # Executing the query
         cursor.execute(query)
+        # Committing the changes
         connection.commit()
         # print("Query was successfully")
+    # Exception block to catch and print the error if any
     except Error as err:
         print(f"Error: '{err}")
 
 
-# Whole server
+# Function to create database
+def create_database(connection, create_database_query):
+    # Creating a cursor for the connection
+    cursor = connection.cursor()
+    # Try block to execute the query
+    try:
+        # Executing the query
+        cursor.execute(create_database_query)
+        # Committing the changes
+        connection.commit()
+        # print("Database created successfully")
+    # Exception block to catch and print the error if any
+    except Error as err:
+        print(f"Error: '{err}")
+
+
+# Function to create database connection
+def create_server_connection(host_name, user_name, user_password):
+    # Creating a connection variable with None value
+    connection = None
+    # Try block to create a connection to database server
+    try:
+        # Creating a connection to database server with given parameters
+        connection = mysql.connector.connect(
+            host=host_name,
+            user=user_name,
+            password=user_password
+        )
+        # print("MySQL server connection successful")
+    # Exception block to catch and print the error if any
+    except Error as err:
+        print(f"Error: '{err}'")
+    # Return the connection to database server
+    return connection
+
+
+# Main function to bring everything together
 def server():
+    # Connecting to database server
     connection = create_server_connection("localhost", "root", password)
-
+    # SQL query to create database
     create_database_query = "Create database mysql_python"
+    # Calling function to create database
     create_database(connection, create_database_query)
-
+    # Connecting to database
     connection = create_db_connection("localhost", "root", password, "mysql_python")
+    # Calling function to create tables
     create_table(connection)
 
 
-# Customer and Policy table Creation
+# Function to create two tables in a database: customer_info and policy_info
 def create_table(connection):
+    # SQL query to create customer_info table with specified columns and their datatypes
     query = """CREATE TABLE customer_info (
       Customer_id INT PRIMARY KEY,
       Customer_Name VARCHAR(255) NOT NULL,
@@ -206,8 +320,11 @@ def create_table(connection):
       Nominee_Name VARCHAR(255) NOT NULL,
       Nominee_relationship VARCHAR(255) NOT NULL
     );"""
+    # Function call to execute the query
     execute_query(connection, query)
+    # Committing the changes made to the database
     connection.commit()
+    # SQL query to create policy_info table with specified columns and their datatypes
     query = """CREATE TABLE policy_info (
   Customer_id INT,
   Policy_id INT,
@@ -217,17 +334,22 @@ def create_table(connection):
   Term VARCHAR(255) NOT NULL,
   FOREIGN KEY (Customer_id)
   REFERENCES customer_info(Customer_id)
-);
-"""
+);"""
+    # Function call to execute the query
     execute_query(connection, query)
+    # Committing the changes made to the database
     connection.commit()
 
 
-# Query Reader
+# Function to execute a select statement on customer_info table
 def read_query():
+    # Creating a database connection
     connection = create_db_connection("localhost", "root", password, "mysql_python")
+    # SQL query to select all data from customer_info table
     query = """select * from customer_info"""
+    # Creating a cursor
     cursor = connection.cursor()
+    # Try block to execute the query and return the result
     try:
         cursor.execute(query)
         result = cursor.fetchall()
@@ -239,13 +361,16 @@ def read_query():
 # Check for duplicate contact number and email
 def check_customer(contact_number, email_id):
     connection = create_db_connection("localhost", "root", password, "mysql_python")
+    # SQL query to check if the contact number or email already exists in the customer_info table
     sql = """select * from customer_info where Contact_Number = %s or Email_Id = %s"""
     val = (contact_number, email_id)
     cursor = connection.cursor()
 
     try:
         cursor.execute(sql, val)
+        # Fetch all the rows from the database for the specified query
         result = cursor.fetchall()
+        # If the result is empty, it means the contact number and email are unique
         if not result:
             return True
         else:
@@ -258,6 +383,7 @@ def check_customer(contact_number, email_id):
 def insert_customer(customer_id, customer_name, customer_age, customer_gender, contact_number, email_id, password_user,
                     address, nominee_name, nominee_relationship):
     connection = create_db_connection("localhost", "root", password, "mysql_python")
+    # SQL query to insert the customer details into the customer_info table
     sql = ("INSERT INTO customer_info (Customer_id, Customer_Name, Customer_Age, Customer_Gender, Contact_Number, \n"
            "    Email_Id, Password, Address, Nominee_Name, Nominee_relationship) VALUES (%s, %s, %s, %s, %s, %s, %s, %s,"
            " %s, %s)")
@@ -267,6 +393,7 @@ def insert_customer(customer_id, customer_name, customer_age, customer_gender, c
 
     try:
         cursor.execute(sql, val)
+        # Commit the changes to the database
         connection.commit()
         print(f"{cursor.rowcount} Customer Registered Successfully\nCustomer Id : {customer_id}")
     except Error as err:
