@@ -275,7 +275,9 @@ def insert_customer(customer_id, customer_name, customer_age, customer_gender, c
 
 # Login Validation
 def login_check(customer_Id, pass_word):
+    # Connect to the database with the provided parameters
     connection = create_db_connection("localhost", "root", password, "mysql_python")
+    # SQL query to retrieve customer information from the database using the provided customer ID
     sql = """select * from customer_info where Customer_id = %s"""
     val = (customer_Id,)
     cursor = connection.cursor()
@@ -283,13 +285,16 @@ def login_check(customer_Id, pass_word):
     try:
         cursor.execute(sql, val)
         result = cursor.fetchall()
+        # If no customer information is found, print the error message and call the back_but function
         if not result:
             print(f"{customer_Id} is not registered")
             back_but()
         else:
+            # If the password matches the one in the database, call the policy_page function with the customer ID as a parameter
             if result[0][6] == pass_word:
                 Policy.policy_page(customer_Id)
             else:
+                # If the password doesn't match, print the error message and call the back_but function
                 print("Incorrect Password")
                 back_but()
     except Error as err:
@@ -298,13 +303,16 @@ def login_check(customer_Id, pass_word):
 
 # Inserting values into policy table
 def insert_policy_info(Customer_id, Policy_id, Policy_Name, Sum_Assured, Premium, Term):
+    # Connect to the database with the provided parameters
     connection = create_db_connection("localhost", "root", password, "mysql_python")
+    # SQL query to insert policy information into the policy_info table
     sql = "INSERT INTO policy_info (Customer_id, Policy_id , Policy_Name, Sum_Assured, Premium, Term) VALUES (%s, %s, %s, %s, %s, %s)"
     val = (Customer_id, Policy_id, Policy_Name, Sum_Assured, Premium, Term)
     cursor = connection.cursor()
     try:
         cursor.execute(sql, val)
         connection.commit()
+        # If the insertion is successful, print a success message with the policy ID
         print(f"{cursor.rowcount} Policy Taken Successfully\nPolicy Id : {Policy_id}")
     except Error as err:
         print(f"Error: '{err}")
@@ -312,27 +320,36 @@ def insert_policy_info(Customer_id, Policy_id, Policy_Name, Sum_Assured, Premium
 
 # Getting value for Customer table from Customer and policy table
 def display_customer(customer_id):
+    # Connect to the database
     connection = create_db_connection("localhost", "root", password, "mysql_python")
+
+    # SQL query to retrieve data from customer_info and policy_info tables based on the customer_id
     sql = """select * from customer_info inner join policy_info on customer_info.Customer_id = policy_info.Customer_id where customer_info.Customer_id = %s"""
     val = (customer_id,)
     cursor = connection.cursor()
 
     try:
+        # Execute the SQL query using the provided customer_id value
         cursor.execute(sql, val)
         result = cursor.fetchall()
+        # Display the result in a table format
         table(result)
+        # Prompt the user to press the Enter key to continue
         input("\npress Enter Key to Continue...")
     except Error as err:
+        # Print an error message in case of an exception
         print(f"Error: '{err}")
 
 
-# Customer table view
+# Function to display customer data in a table format
 def table(value):
     x = PrettyTable()
+    # Define the header fields for the table
     x.field_names = ["Customer_id", "Customer_Name", "Customer_Age", "Customer_Gender", "Contact_Number",
                      "Email_Id", "Password", "Address", "Nominee_Name", "Nominee_relationship", "Policy_id",
                      "Policy_Name", "Sum_Assured", "Premium", "Term"]
     for val in value:
+        # Add a row to the table for each data entry
         x.add_row(
             [val[0], val[1], val[2], val[3], val[4], val[5], val[6], val[7], val[8], val[9], val[10], val[12], val[13],
              val[14], val[15]])
@@ -340,12 +357,14 @@ def table(value):
     print(x)
 
 
-# Agent table view
+# Function to display agent data in a table format
 def agent_table(value):
     x = PrettyTable()
+    # Define the header fields for the table
     x.field_names = ["Customer_id", "Customer_Name", "Contact_Number", "Email_Id", "Address", "Policy_id",
                      "Policy_Name", "Sum_Assured", "Premium", "Term"]
     for val in value:
+        # Add a row to the table for each data entry
         x.add_row([val[0], val[1], val[2], val[3], val[4], val[5], val[6], val[7], val[8], val[9]])
     x.align = "l"
     print(x)
