@@ -175,12 +175,12 @@ def agent_view():
 # Function to create a connection to the server
 def create_server_connection(host_name, user_name, user_password):
     """
-    Creates a connection to the server using the provided host name, user name, and password.
+    Creates a connection to the server using the provided host name, username, and password.
 
     Parameters:
     host_name (str): the host name for the server
-    user_name (str): the user name for the server
-    user_password (str): the password for the user name
+    user_name (str): the username for the server
+    user_password (str): the password for the username
 
     Returns:
     connection: a connection object to the server if successful, None otherwise
